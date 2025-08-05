@@ -45,6 +45,29 @@ class LoadQwenImagePrompt:
         return (prompt,)
 
 
+class LoadQwenImageNegativePrompt:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "text": ("STRING", {
+                    "default": " ",
+                    "multiline": True
+                }),
+            }
+        }
+
+    RETURN_TYPES = ("PROMPT",)
+    RETURN_NAMES = ("negative_prompt",)
+    FUNCTION = "load_prompt"
+    CATEGORY = "Qwen-Image"
+
+    def load_prompt(self, text):
+        negative_prompt = text
+        
+        return (negative_prompt,)
+
+
 class QwenImage:
     @classmethod
     def INPUT_TYPES(cls):
@@ -52,10 +75,11 @@ class QwenImage:
             "required": {
                 "model": ("MODEL",),
                 "prompt": ("PROMPT",),
-                "positive_magic": ("STRING", {"default": "Repeat this image."}),
-                "aspect_ratios": ("FLOAT", {"default": 3.0}),
-                "num_inference_steps": ("FLOAT", {"default": 1.0}),
-                "true_cfg_scale": ("STRING", {"default": "constant"}),
+                "negative_prompt": ("PROMPT",),
+                "positive_magic": (["en", "zh"], {"default": "en"}),
+                "ratio": (["1:1", "16:9", "9:16", "4:3", "3:4"], {"default": "16:9"}),
+                "num_inference_steps": ("INT", {"default": 50}),
+                "true_cfg_scale": ("FLOAT", {"default": 4.0}),
             }
         }
 
@@ -64,7 +88,7 @@ class QwenImage:
     FUNCTION = "generate"
     CATEGORY = "Qwen-Image"
 
-    def generate(self, model, prompt, positive_magic, aspect_ratios, num_inference_steps, true_cfg_scale):
+    def generate(self, model, prompt, negative_prompt, magic, aspect_ratios, num_inference_steps, true_cfg_scale):
         
         # Load the pipeline
         if torch.cuda.is_available():
@@ -81,12 +105,8 @@ class QwenImage:
             "en": "Ultra HD, 4K, cinematic composition.", # for english prompt
             "zh": "超清，4K，电影级构图" # for chinese prompt
         }
-        
-        # Generate image
-        prompt = ''''''
-        
-        negative_prompt = " " # Recommended if you don't use a negative prompt.
-        
+
+        prompt_positive = positive_magic[magic]
         
         # Generate with different aspect ratios
         aspect_ratios = {
@@ -97,15 +117,15 @@ class QwenImage:
             "3:4": (1140, 1472)
         }
         
-        width, height = aspect_ratios["16:9"]
+        width, height = aspect_ratios[ratio]
         
         image = pipe(
-            prompt=prompt + positive_magic["en"],
+            prompt=prompt + prompt_positive,
             negative_prompt=negative_prompt,
             width=width,
             height=height,
-            num_inference_steps=50,
-            true_cfg_scale=4.0,
+            num_inference_steps=num_inference_steps,
+            true_cfg_scale=true_cfg_scale,
             generator=torch.Generator(device="cuda").manual_seed(42)
         ).images[0]
 
