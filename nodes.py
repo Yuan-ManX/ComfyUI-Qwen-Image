@@ -152,8 +152,8 @@ class SaveQwenImage:
             }
         }
 
-    RETURN_TYPES = ()
-    RETURN_NAMES = ()
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("image",)
     FUNCTION = "save"
     CATEGORY = "Qwen-Image"
 
