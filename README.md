@@ -23,3 +23,7 @@ pip install git+https://github.com/huggingface/diffusers
 ## Model
 
 ### Download Pretrained Models
+
+Download the model checkpoints! Check at [Huggingface](https://huggingface.co/Qwen/Qwen-Image) and [Modelscope](https://modelscope.cn/models/Qwen/Qwen-Image)!
+
+Qwen-Image! Check [Blog](https://qwenlm.github.io/blog/qwen-image) for more details!
