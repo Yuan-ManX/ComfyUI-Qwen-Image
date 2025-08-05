@@ -1,5 +1,15 @@
 import torch
 from diffusers import DiffusionPipeline
+from PIL import Image, ImageOps
+import folder_paths
+
+
+temp_dir = folder_paths.get_temp_directory()
+
+
+# PIL to Tensor that works in ComfyUI
+def pil2tensor(image):
+    return torch.from_numpy(np.array(image).astype(np.float32) / 255.0).unsqueeze(0)
 
 
 class LoadQwenImageModel:
@@ -129,6 +139,30 @@ class QwenImage:
             generator=torch.Generator(device="cuda").manual_seed(42)
         ).images[0]
 
+        return (image,)
+
+
+class SaveQwenImage:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "image_path": ("STRING", {"default": "output.png"}),
+                "image": ("IMAGE",),
+            }
+        }
+
+    RETURN_TYPES = ()
+    RETURN_NAMES = ()
+    FUNCTION = "save"
+    CATEGORY = "Qwen-Image"
+
+    def save(self, image_path, image):
+        image.save(image_path)
+        
+        image_tmp_path = os.path.join(temp_dir, "tmp_qwen-image.png")
+        image = pil2tensor(Image.open(image_tmp_path).convert("RGB"))
+        
         return (image,)
 
 
