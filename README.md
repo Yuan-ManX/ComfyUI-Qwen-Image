@@ -17,6 +17,7 @@ git clone https://github.com/Yuan-ManX/ComfyUI-Qwen-Image.git
 ```
 cd ComfyUI-Qwen-Image
 pip install -r requirements.txt
+pip install git+https://github.com/huggingface/diffusers
 ```
 
 ## Model
